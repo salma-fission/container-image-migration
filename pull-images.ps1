@@ -16,7 +16,7 @@ $all_projects = @()
 $breakProjectLoop = $false
 $projectPage = 1
 while(!$breakProjectLoop){
-    $projects = Invoke-RestMethod -Method GET -Uri https://gitlab.com/api/v4/projects?visibility=private`&per_page=100`&page=$projectPage`&id=2994555 -Headers $headers
+    $projects = Invoke-RestMethod -Method GET -Uri https://gitlab.com/api/v4/projects?visibility=private`&per_page=100`&page=$projectPage -Headers $headers
     if($projects.Count -eq 0){
         $breakProjectLoop = $true
     }
@@ -33,8 +33,6 @@ while(!$breakProjectLoop){
 }
 
 Write-Host "Total projects found " $all_projects.Count
-
-$all_projects | Write-Output
 
 $tags = @()
 foreach ($project in $all_projects) {
