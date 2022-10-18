@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Patching Automation",
+        "webUrl": "https://gitlab.com/2ndwatch/applications/patching-automation"
+    },
+    {
+        "name": "Helm S3",
+        "webUrl": "https://gitlab.com/2ndwatch/applications/helm-s3"
+    }
+]

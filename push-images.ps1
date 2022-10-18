@@ -1,3 +1,4 @@
+# Import environment variables using .env file.
 Get-Content .env | ForEach-Object {
     $name, $value = $_.split('=')
     set-content env:\$name $value
@@ -6,6 +7,7 @@ Get-Content .env | ForEach-Object {
 # Get list of project from output file
 $projects = Get-Content $env:OUTPUT_FILE | Out-String | ConvertFrom-Json
 
+# Github login.
 $env:GITHUB_TOKEN | docker login ghcr.io -u $env:GITHUB_USERNAME --password-stdin | Write-Host
 
 foreach ($project in $projects) {

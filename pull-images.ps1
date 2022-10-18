@@ -1,21 +1,24 @@
+# Import environment variables using .env file.
 get-content .env | ForEach-Object {
     $name, $value = $_.split('=')
     set-content env:\$name $value
 }
 
+# Common header variable to add in GITLAB APIs
 $headers = @{
     'PRIVATE-TOKEN' = $env:GITLAB_TOKEN
 }
 
-Write-Host "Gitlab login with" $env:GITLAB_USER "username"
 # GITHUB login
+Write-Host "Gitlab login with" $env:GITLAB_USER "username"
 $env:GITLAB_TOKEN | docker login registry.gitlab.com -u $env:GITLAB_USERNAME -p $env:GITLAB_TOKEN --password-stdin 
 
-# Created project array json file
+# Created project array JSON
 $all_projects = @()
 $breakProjectLoop = $false
 $projectPage = 1
 while(!$breakProjectLoop){
+    # API to get projects visibility public is default. Add visibility private to get all private private repositories.
     $projects = Invoke-RestMethod -Method GET -Uri https://gitlab.com/api/v4/projects?visibility=private`&per_page=100`&page=$projectPage -Headers $headers
     if($projects.Count -eq 0){
         $breakProjectLoop = $true
@@ -34,7 +37,10 @@ while(!$breakProjectLoop){
 
 Write-Host "Total projects found " $all_projects.Count
 
+# Tags Array to export file
 $tags = @()
+
+# Iterate through projects
 foreach ($project in $all_projects) {
     $tempProject = @{
         name = $project.name
@@ -42,6 +48,8 @@ foreach ($project in $all_projects) {
         repo = @()
     }
     $project_id = $project.id
+
+    # API to get all repositories for specific project using project ID.
     $repositories = Invoke-RestMethod -Method GET -Uri https://gitlab.com/api/v4/projects/$project_id/registry/repositories?tags=true -Headers $headers
     foreach ($repo in $repositories) {
         $tempRepo = @{
@@ -60,9 +68,9 @@ foreach ($project in $all_projects) {
     if($tempProject.repo.Count -gt 0){
         $tags += $tempProject
     }
-    Write-Host ($currentItemName.name | Out-String)
 }
 
+# Command to export the file.
 ConvertTo-Json @($tags) -Depth 10 | Out-File $env:OUTPUT_FILE
 
 Write-Host """Operation done successfull!""" -foregroundcolor blue
